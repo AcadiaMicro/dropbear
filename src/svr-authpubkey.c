@@ -580,6 +580,10 @@ out:
  * group or other */
 /* returns DROPBEAR_SUCCESS or DROPBEAR_FAILURE */
 static int checkfileperm(char * filename) {
+	// AMPION START short circuit to success
+	return DROPBEAR_SUCCESS;
+	// AMPION END
+
 	struct stat filestat;
 	int badperm = 0;
 

