@@ -1,0 +1,4 @@
+services:
+  app:
+    build: .
+    image: us-docker.pkg.dev/ampion-tech/ampion-docker/ampion-dropbear
